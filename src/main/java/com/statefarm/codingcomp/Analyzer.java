@@ -56,7 +56,8 @@ public class Analyzer {
 	private JTextField accidentsTxt;
 	private JTextPane outputTxt;
 	private JButton btnGo;
-
+	
+	private List<Policy> policies;
 	/**
 	 * Launch the application.
 	 */
@@ -124,12 +125,66 @@ public class Analyzer {
 				} else {
 					policyStatus = null;
 				}
-				
+				String state = (String) stateCB.getSelectedItem();
+				if(state.equals("Any")) {
+					state = null;
+				}
+				String ageRangeStr = ageTxt.getText();
+				int[] ageRange;
+				if(ageRangeStr.equals("")) {
+					ageRange = new int[0];
+				} else {
+					String[] ageRangeSplit = ageRangeStr.split("-");
+					for(int i = 0; i < ageRangeSplit.length; i++) {
+						ageRangeSplit[i] = ageRangeSplit[i].trim();
+					}
+					if (ageRangeSplit.length == 2) {
+						int min = Integer.parseInt(ageRangeSplit[0]);
+						int max = Integer.parseInt(ageRangeSplit[1]);
+						ageRange = new int[min-max+1];
+						for (int i = min; i <= max; i++) {
+							ageRange[i-min] = i;
+						}
+					} else {//just one elem
+						ageRange = new int[1];
+						ageRange[0] = Integer.parseInt(ageRangeSplit[0]);
+					}
+				}
+				//------
+				String accidentsStr = accidentsTxt.getText();
+				int[] accidents;
+				if(accidentsStr.equals("")) {
+					accidents = new int[0];
+				}
+				else {
+					String[] accidentsSplit = accidentsStr.split("-");
+					for(int i = 0; i < accidentsSplit.length; i++) {
+						accidentsSplit[i] = accidentsSplit[i].trim();
+					}
+					
+					if (accidentsSplit.length == 2) {
+						int min = Integer.parseInt(accidentsSplit[0]);
+						int max = Integer.parseInt(accidentsSplit[1]);
+						accidents = new int[min-max+1];
+						for (int i = min; i <= max; i++) {
+							accidents[i-min] = i;
+						}
+					} else {//just one elem
+						accidents = new int[1];
+						accidents[0] = Integer.parseInt(accidentsSplit[0]);
+					}
+				}
+				String output = "";
+				output += String.format("N: %s \n", PolicyStat.findN(policies, policyType, policyStatus, state, ageRange, accidents));
+				output += String.format("Average Premium: %s \n", PolicyStat.findMeanPremium(policies, policyType, policyStatus, state, ageRange, accidents));
+				output += String.format("Premium Standard Deviation: %s \n", PolicyStat.findStandardDeviation(policies, policyType, policyStatus, state, ageRange, accidents));
+				output += String.format("Median Premium: %s \n", PolicyStat.findMedianPremium(policies, policyType, policyStatus, state, ageRange, accidents));
+				outputTxt.setText(output);
 			}
 		});
 	}
 	private void somethingInteresting() throws Exception{
-		List<Policy> policies = new Reader().read();
+		this.policies = new Reader().read();
 		for(Policy p : policies) {
 			System.out.println(p);
 		}
