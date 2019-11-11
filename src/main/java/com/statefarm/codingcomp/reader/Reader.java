@@ -27,7 +27,8 @@ public class Reader {
 				fis.close();
 			}
 		}
-		String[] contents = new String(data, "UTF-8").split("\r");
+		String[] contents = new String(data, "UTF-8").split("\\r?\\n");
+		
 		List<Policy> policies = new ArrayList<>();
 		for(String policy : contents) {
 			policies.add(new Policy(policy.split(",")));
